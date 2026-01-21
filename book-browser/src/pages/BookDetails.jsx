@@ -1,53 +1,63 @@
-import { useParams, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { FavoritesContext } from "../context/FavoritesContext.jsx";
 
-export default function BookDetails() {
+const BookDetails = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { addToFavorites } = useContext(FavoritesContext);
 
   useEffect(() => {
-    async function fetchBook() {
+    const fetchBook = async () => {
       try {
-        const res = await fetch(`https://openlibrary.org${id}.json`);
+        const res = await fetch(
+          `https://openlibrary.org/works/${id}.json`
+        );
         const data = await res.json();
         setBook(data);
-      } catch {
-        setError("Failed to load book details 😕");
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
-    }
+    };
+
     fetchBook();
   }, [id]);
 
-  if (loading) return <p>Loading book details...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!book) return <p>No details found.</p>;
+  if (loading) return <main><p>Loading...</p></main>;
+  if (!book) return <main><p>Book not found</p></main>;
 
-  const coverId = book.covers?.[0];
+  let description = "No description available.";
+  if (typeof book.description === "string") description = book.description;
+  else if (typeof book.description === "object") description = book.description.value;
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h2>{book.title}</h2>
+    <main className="details">
+      <h1>{book.title}</h1>
 
-      {coverId && (
-        <img
-          src={`https://covers.openlibrary.org/b/id/${coverId}-L.jpg`}
-          alt={book.title}
-          width="200"
-          style={{ borderRadius: "8px", margin: "1rem 0" }}
-        />
-      )}
+      <h3>Description</h3>
+      <p>{description}</p>
 
-      <p><strong>Description:</strong></p>
-      <p>{book.description?.value ?? book.description ?? "No description available 😕"}</p>
-      <p><strong>First Published:</strong> {book.first_publish_date ?? "Unknown"}</p>
+      {/* مجموعة الأزرار أفقية */}
+      <div className="button-group">
+        <button onClick={() => addToFavorites(book)}>⭐ Add to Favourites</button>
+        <a
+          className="read-button"
+          href={`https://openlibrary.org/works/${id}/borrow`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          📖 Read this book
+        </a>
+      </div>
 
-      <Link to="/" style={{ display: "inline-block", marginTop: "1rem", color: "#4a90e2" }}>
-        ⬅️ Back to Search
-      </Link>
-    </div>
+      <p style={{ fontSize: "0.9rem", color: "#666", marginTop: "0.5rem" }}>
+        Availability depends on Open Library copyright restrictions.
+      </p>
+    </main>
   );
-}
+};
+
+export default BookDetails;

@@ -1,38 +1,34 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 
-const FavoritesContext = createContext(null);
+export const FavoritesContext = createContext();
 
-export function FavoritesProvider({ children }) {
+export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("favorites"));
-    if (stored) setFavorites(stored);
+    const stored = localStorage.getItem("favorites");
+    if (stored) setFavorites(JSON.parse(stored));
   }, []);
 
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  function addFavorite(book) {
+  const addToFavorites = (book) => {
     if (!favorites.find((b) => b.key === book.key)) {
       setFavorites([...favorites, book]);
     }
-  }
+  };
 
-  function removeFavorite(id) {
-    setFavorites(favorites.filter((b) => b.key !== id));
-  }
+  const removeFromFavorites = (key) => {
+    setFavorites(favorites.filter((b) => b.key !== key));
+  };
 
   return (
     <FavoritesContext.Provider
-      value={{ favorites, addFavorite, removeFavorite }}
+      value={{ favorites, addToFavorites, removeFromFavorites }}
     >
       {children}
     </FavoritesContext.Provider>
   );
-}
-
-export function useFavorites() {
-  return useContext(FavoritesContext);
-}
+};

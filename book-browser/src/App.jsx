@@ -1,24 +1,28 @@
-import { Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home.jsx';
-import BookDetails from './pages/BookDetails.jsx';
-import Favorites from './pages/Favorites.jsx';
-import './App.css';
+import { Routes, Route, Link } from "react-router-dom";
+import Home from "./pages/Home.jsx";
+import BookDetails from "./pages/BookDetails.jsx";
+import Favourites from "./pages/Favourites.jsx";
 
-export default function App() {
+function App() {
   return (
-    <div>
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/favorites">Favorites</Link>
-      </nav>
+    <>
+      <header>
+        <h1>📚 Book Browser</h1>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/favourites">
+          Favourites ⭐ {Favourites}
+          </Link>
+        </nav>
+      </header>
 
-      <div className="container">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/book/:id" element={<BookDetails />} />
-          <Route path="/favorites" element={<Favorites />} />
-        </Routes>
-      </div>
-    </div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/book/:id" element={<BookDetails />} />
+        <Route path="/favourites" element={<Favourites />} />
+      </Routes>
+    </>
   );
 }
+
+export default App;
